@@ -1,0 +1,16 @@
+GRUPO 2
+P1
+tiempo de espera: 0.0
+tiempo de retorno: 22.0
+P2
+tiempo de espera: 22.0
+tiempo de retorno: 26.0
+P3
+tiempo de espera: 26.0
+tiempo de retorno: 42.0
+P4
+tiempo de espera: 42.0
+tiempo de retorno: 76.0
+P5
+tiempo de espera: 76.0
+tiempo de retorno: 78.0
