@@ -133,7 +133,6 @@ def algoritmo_FCFS(archivo_de_entrada):
     realiza el algoritmo FCFS para el GRUPO 1
     '''
     procesos_FCFS = []
-    # lectura del archivo de entrada
     with open(archivo_de_entrada, 'r') as archivo:
         # saltar la primera linea
         for _ in range(1):
@@ -157,15 +156,15 @@ def algoritmo_FCFS(archivo_de_entrada):
         tiempo_de_respuesta = tiempo_de_retorno - tiempo_de_llegada
         tiempo_de_espera = float(tiempo_de_llegada + tiempo_de_respuesta)
         # calcular el tiempo de retorno
-        tiempo_de_ejecucion = procesos_FCFS[i][2]
-        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_ejecucion)
+        tiempo_de_respuesta = procesos_FCFS[i][2]
+        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_respuesta)
         # obtener el promedio del tiempo de espera y del tiempo de retorno
         total_del_tiempo_de_espera += tiempo_de_espera
         total_del_tiempo_de_retorno += tiempo_de_retorno
     promedio_del_tiempo_de_espera = total_del_tiempo_de_espera / numero_de_procesos
     promedio_del_tiempo_de_retorno = total_del_tiempo_de_retorno / numero_de_procesos
     # crear un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
-    resultados_FCFS = "GRUPO 1 (ALGORITMO FCFS)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + "\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno)
+    resultados_FCFS = "GRUPO 1 (ALGORITMO FCFS)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + " segundos\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno) + " segundos"
     return resultados_FCFS
 
 def algoritmo_SJF(archivo_de_entrada):
@@ -173,7 +172,6 @@ def algoritmo_SJF(archivo_de_entrada):
     realiza el algoritmo SJF para el GRUPO 2
     '''
     procesos_SJF = []
-    # lectura del archivo de entrada
     with open(archivo_de_entrada, 'r') as archivo:
         # salta la septima linea
         for _ in range(7):
@@ -197,24 +195,22 @@ def algoritmo_SJF(archivo_de_entrada):
         tiempo_de_respuesta = tiempo_de_retorno - tiempo_de_llegada
         tiempo_de_espera = float(tiempo_de_llegada + tiempo_de_respuesta)
         # calcula el tiempo de retorno
-        tiempo_de_ejecucion = procesos_SJF[i][2]
-        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_ejecucion)
+        tiempo_de_respuesta = procesos_SJF[i][2]
+        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_respuesta)
         # obtiene el promedio del tiempo de espera y del tiempo de retorno
         total_del_tiempo_de_espera += tiempo_de_espera
         total_del_tiempo_de_retorno += tiempo_de_retorno
     promedio_del_tiempo_de_espera = total_del_tiempo_de_espera / numero_de_procesos
     promedio_del_tiempo_de_retorno = total_del_tiempo_de_retorno / numero_de_procesos
     # crea un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
-    resultados_SJF = "GRUPO 2 (ALGORITMO SJF)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + "\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno)
+    resultados_SJF = "GRUPO 2 (ALGORITMO SJF)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + " segundos\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno) + " segundos"
     return resultados_SJF
 
-#!\\ HACER EL ALGORITMO SRTF //!#
 def algoritmo_SRTF(archivo_de_entrada):
     '''
     realiza el algoritmo SRTF para el GRUPO 3
     '''
     procesos_SRTF = []
-    # lectura del archivo de entrada
     with open(archivo_de_entrada, 'r') as archivo:
         # salta la decimo tercera linea
         for _ in range(13):
@@ -225,69 +221,95 @@ def algoritmo_SRTF(archivo_de_entrada):
             partes = linea.split(':')
             procesos_SRTF.append((str(partes[0]), int(partes[1]), int(partes[2])))  
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
-    tiempo_de_retorno = 0
+    tiempo_de_respuesta = 0
     total_del_tiempo_de_espera = 0
     total_del_tiempo_de_retorno = 0
+    procesos_en_ejecucion = []
     # lee el numero de procesos
     numero_de_procesos = len(procesos_SRTF)
-
+    while procesos_SRTF or procesos_en_ejecucion:
+        # agrega los procesos que han llegado al tiempo actual
+        while procesos_SRTF and procesos_SRTF[0][1] <= tiempo_de_respuesta:
+            procesos_en_ejecucion.append(procesos_SRTF.pop(0))
+            procesos_en_ejecucion.sort(key=lambda x: x[2])  # Ordenar por el tiempo restante más corto
+        if procesos_en_ejecucion:
+            tiempo_de_llegada = procesos_en_ejecucion.pop(0)
+            # calcula el tiempo de espera
+            tiempo_espera = tiempo_de_respuesta - tiempo_de_llegada[1]
+            tiempo_de_respuesta += tiempo_de_llegada[2]
+            # calcula el tiempo de retorno
+            tiempo_retorno = tiempo_de_respuesta - tiempo_de_llegada[1]
+            total_del_tiempo_de_espera += tiempo_espera
+            total_del_tiempo_de_retorno += tiempo_retorno
+    # ordenar los procesos por su llegada y por su tiempo de ejecucion
+    procesos_SRTF = sorted(procesos_SRTF, key=lambda x: x[1])
     promedio_del_tiempo_de_espera = total_del_tiempo_de_espera / numero_de_procesos
     promedio_del_tiempo_de_retorno = total_del_tiempo_de_retorno / numero_de_procesos
     # crea un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
-    resultados_SRTF = "GRUPO 3 (ALGORITMO SRTF)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + "\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno)
+    resultados_SRTF = "GRUPO 3 (ALGORITMO SRTF)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + " segundos\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno) + " segundos"
     return resultados_SRTF
-#!\\ HACER EL ALGORITMO ROUND ROBIN //!#
+
 def algoritmo_ROUND_ROBIN(archivo_de_entrada):
     '''
-    realiza el algoritmo SRTF para el GRUPO 3
+    realiza el algoritmo ROUND ROBIN para el GRUPO 4
     '''
     procesos_ROUND_ROBIN = []
-    # lectura del archivo de entrada
     with open(archivo_de_entrada, 'r') as archivo:
         # salta la decimo novena linea
-        for _ in range(13):
+        for _ in range(19):
             archivo.readline()
         # lee todas las lineas que esten desde la linea 20 hasta la linea 24
         for _ in range(5):
             linea = archivo.readline().strip()
             partes = linea.split(':')
-            procesos_ROUND_ROBIN.append((str(partes[0]), int(partes[1]), int(partes[2])))  
+            procesos_ROUND_ROBIN.append([str(partes[0]), int(partes[1]), int(partes[2]), 0])  
     # define el valor quantico (quantum)
     quantum = 3
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
-    tiempo_de_retorno = 0
+    tiempo_de_respuesta = 0
     total_del_tiempo_de_espera = 0
     total_del_tiempo_de_retorno = 0
     # lee el numero de procesos
     numero_de_procesos = len(procesos_ROUND_ROBIN)
-    
-    for i in range(0, numero_de_procesos):
-        # calcular el tiempo de espera
-        tiempo_de_llegada = procesos_ROUND_ROBIN[i][1]
-        tiempo_de_respuesta = tiempo_de_retorno - tiempo_de_llegada
-        tiempo_de_espera = float(tiempo_de_llegada + tiempo_de_respuesta)
-        # calcular el tiempo de retorno
-        tiempo_de_ejecucion = procesos_ROUND_ROBIN[i][2]
-        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_ejecucion)
-        # obtener el promedio del tiempo de espera y del tiempo de retorno
-        total_del_tiempo_de_espera += tiempo_de_espera
-        total_del_tiempo_de_retorno += tiempo_de_retorno
-    
+    cola_procesos = []
+    while procesos_ROUND_ROBIN or cola_procesos:
+        # agregaa procesos que han llegado al tiempo actual a la cola de procesos
+        while procesos_ROUND_ROBIN and procesos_ROUND_ROBIN[0][1] <= tiempo_de_respuesta:
+            cola_procesos.append(procesos_ROUND_ROBIN.pop(0))
+        if cola_procesos:
+            tiempo_de_llegada = cola_procesos.pop(0)
+            # calcular el tiempo de espera
+            tiempo_espera = tiempo_de_respuesta - tiempo_de_llegada[1] - tiempo_de_llegada[3]
+            tiempo_ejecucion = min(quantum, tiempo_de_llegada[2])
+            tiempo_de_respuesta += tiempo_ejecucion
+            tiempo_de_llegada[2] -= tiempo_ejecucion
+            tiempo_de_llegada[3] += tiempo_ejecucion
+            if tiempo_de_llegada[2] > 0:
+                # si el proceso aún no ha terminado, se vuelve a añadir a la cola
+                cola_procesos.append(tiempo_de_llegada)
+            else:
+                # si el proceso ha terminado se realiza el calculo del tiempo de retorno
+                tiempo_de_retorno = tiempo_de_respuesta - tiempo_de_llegada[1]
+                # obtener el promedio del tiempo de espera y del tiempo de retorno
+                total_del_tiempo_de_espera += tiempo_espera
+                total_del_tiempo_de_retorno += tiempo_de_retorno
+        else:
+            tiempo_de_respuesta += 1  # incrementa el tiempo si no hay procesos listos
     promedio_del_tiempo_de_espera = total_del_tiempo_de_espera / numero_de_procesos
     promedio_del_tiempo_de_retorno = total_del_tiempo_de_retorno / numero_de_procesos
     # crea un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
-    resultados_ROUND_ROBIN = "GRUPO 4 (ALGORITMO ROUND ROBIN)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + "\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno)
+    resultados_ROUND_ROBIN = "GRUPO 4 (ALGORITMO ROUND ROBIN)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + " segundos\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno) + " segundos"
     return resultados_ROUND_ROBIN
 
-def escribir_resultados(resultados_FCFS, resultados_SJF, archivo_de_salida):
+def escribir_resultados(resultados_FCFS, resultados_SJF, resultados_SRTF, resultados_ROUND_ROBIN, archivo_de_salida):
     '''
     escribe los resultados en el archivo de salida
     '''
     with open(archivo_de_salida, 'w', encoding='utf8') as archivo:
         archivo.write(resultados_FCFS + '\n')
         archivo.write(resultados_SJF + '\n')
-        # archivo.write(resultados_SRTF + '\n')
-        # archivo.write(resultados_ROUND_ROBIN + '\n')
+        archivo.write(resultados_SRTF + '\n')
+        archivo.write(resultados_ROUND_ROBIN + '\n')
 
 def main():
     # borra el terminal
@@ -317,13 +339,13 @@ def main():
     # selecciona el archivo de entrada
     resultados_FCFS = algoritmo_FCFS(archivo_de_entrada)
     resultados_SJF = algoritmo_SJF(archivo_de_entrada)
-    #resultados_SRTF = algoritmo_SRTF(archivo_de_entrada)
-    #resultados_ROUND_ROBIN = algoritmo_ROUND_ROBIN(archivo_de_entrada)
-    escribir_resultados(resultados_FCFS, resultados_SJF, archivo_de_salida)
+    resultados_SRTF = algoritmo_SRTF(archivo_de_entrada)
+    resultados_ROUND_ROBIN = algoritmo_ROUND_ROBIN(archivo_de_entrada)
+    escribir_resultados(resultados_FCFS, resultados_SJF, resultados_SRTF, resultados_ROUND_ROBIN, archivo_de_salida)
     print(resultados_FCFS)
     print(resultados_SJF)
-    #print(resultados_SRTF)
-    #print(resultados_ROUND_ROBIN)
+    print(resultados_SRTF)
+    print(resultados_ROUND_ROBIN)
     mensaje_de_importacion = "\nlos resultados han sido importados con exito"
     # muestra los resultados y emite un mensaje que indica que los resultados fueron importados en el archivo de salida
     print(mensaje_de_importacion)
@@ -339,4 +361,3 @@ if __name__ == "__main__":
 # si el archivo de entrada no tiene contenido mostrar un mensaje indicando que introduzca el contenido
 # si el archivo de salida tiene contenido sobreescribir dicho contenido
 # verificar si el contenido del archivo de entrada (datos introducidos) son correctos (estan escritos de forma correcta)
-# hacer el SRTF y el ROUND ROBIN
