@@ -1,16 +1,12 @@
-GRUPO 2
-P1
-tiempo de espera: 0.0
-tiempo de retorno: 22.0
-P2
-tiempo de espera: 22.0
-tiempo de retorno: 26.0
-P3
-tiempo de espera: 26.0
-tiempo de retorno: 42.0
-P4
-tiempo de espera: 42.0
-tiempo de retorno: 76.0
-P5
-tiempo de espera: 76.0
-tiempo de retorno: 78.0
+GRUPO 1 (ALGORITMO FCFS)
+promedio del tiempo de espera: 8.0 segundos
+promedio del tiempo de retorno: 14.0 segundos
+GRUPO 2 (ALGORITMO SJF)
+promedio del tiempo de espera: 10.8 segundos
+promedio del tiempo de retorno: 20.6 segundos
+GRUPO 3 (ALGORITMO SRTF)
+promedio del tiempo de espera: 2.8 segundos
+promedio del tiempo de retorno: 8.2 segundos
+GRUPO 4 (ALGORITMO ROUND ROBIN)
+promedio del tiempo de espera: 26.4 segundos
+promedio del tiempo de retorno: 42.0 segundos
