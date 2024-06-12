@@ -17,7 +17,10 @@ def pausar_programa():
     '''
     pausa el programa mostrando el siguiente mensaje: Pulse una tecla para continuar
     '''
-    os.system("pause")
+    if os.name == "posix":
+        os.system(input("presiona intro para continuar..."))
+    elif os.name == "ce" or os.name == "nt" or os.name == "dos":
+        os.system("pause")
 
 def checkear_version_de_python():
     '''
@@ -72,61 +75,59 @@ def verificar_libreria(nombre_libreria):
         print(libreria_sin_instalar)
         return False
 
-def verificar_archivos(archivo_de_entrada, archivo_de_salida):
+def buscar_archivo(nombre_del_archivo):
     '''
-    comprueba si los archivos existen y si su formato es valido o no
+    busca un archivo que coincida con el nombre del archivo sin la extension
     '''
-    # en caso de introducir el nombre sin la extension agrega la extension .txt al nombre del archivo antes de realizar la busqueda
-    if not (archivo_de_entrada or archivo_de_salida).endswith('.txt'):
-        archivo_de_entrada += '.txt'
-    # verifica archivo de entrada existe
-    if os.path.exists(archivo_de_entrada):
-        mensaje = "el archivo " + str(archivo_de_entrada) + " ya existe"
-        print(mensaje)
-        # Comprobar si la extensión es .txt
-        if archivo_de_entrada.lower().endswith('.txt'):
-            verificar_extension = "la extensión del archivo es valida"
-            print(verificar_extension)
-        else:
-            mensaje_error = "La extensión del archivo no es valida'.txt'\nse creara un archivo '.txt' con dicho nombre"
-            # si el archivo no es .txt crea un archivo nuevo con la extension .txt
-            print(mensaje_error)
-            with open(archivo_de_entrada + 'txt', 'w') as archivo:
-                archivo_creado = "se ha creado el archivo " + str(archivo_de_entrada) + ".txt"
-                print(archivo_creado)
+    try:
+        # lista todos los archivos en el directorio actual
+        archivos = os.listdir('.')
+        for archivo in archivos:
+            # divide los archivos por su nombre y su formato
+            partes_del_archivo_encontrado = os.path.splitext(archivo) 
+            nombre_archivo_encontrado = partes_del_archivo_encontrado[0]
+            if nombre_archivo_encontrado == nombre_del_archivo:
+                return archivo
+    except FileNotFoundError:
+        # si el archivo no ha sido encontrado muestra un mensaje de error
+        raise FileNotFoundError("El archivo " + nombre_del_archivo + " no existe")
+
+def verificar_formato(archivo_encontrado, extension_del_archivo):
+    '''
+    verifica si el formato del archivo encontrado es el adecuado
+    '''
+    # verifica si la extensión del archivo es correcta
+    if archivo_encontrado.endswith(extension_del_archivo):
+        print("El archivo " + archivo_encontrado + " existe y su formato es valido.")
     else:
-        # si el archivo no existe crea un archivo nuevo con la extension .txt
-        mensaje_error = "el archivo " + str(archivo_de_entrada) + " no existe\nse creara un archivo '.txt' con dicho nombre"
-        print(mensaje_error)
-        with open(archivo_de_entrada + '.txt', 'w') as archivo:
-            archivo_creado = "se ha creado el archivo " + str(archivo_de_entrada) + ".txt"
-            print(archivo_creado)
-    # pausa el programa
-    pausar_programa()
-    # borra el terminal
-    borrar_consola()
-    # verifica si el archivo de salida existe
-    if os.path.exists(archivo_de_salida):
-        mensaje = "el archivo " + str(archivo_de_salida) + " ya existe"
-        print(mensaje)
-        # comprueba si la extensión es .txt
-        if archivo_de_salida.lower().endswith('.txt'):
-            verificar_extension = "la extensión del archivo es valida"
-            print(verificar_extension)
+        # si la extension del archivo no es valido muestra un mensaje de error
+        raise ValueError("El formato del archivo " + archivo_encontrado + " no es valido.")
+
+def verificar_contenido_de_entrada(archivo_de_entrada):
+    '''
+    verifica si el archivo de entrada tiene contenido
+    '''
+    with open(archivo_de_entrada, 'r') as file:
+        contenido = file.read().strip()
+        if contenido:
+            print("El archivo tiene contenido.")
         else:
-            mensaje_error = "La extensión del archivo no es valida'.txt'\nse creara un archivo '.txt' con dicho nombre"
-            # si la extension no es .txt crea un archivo nuevo con la extension .txt
-            print(mensaje_error)
-            with open(archivo_de_salida + '.txt', 'w') as archivo:
-                archivo_creado = "se ha creado el archivo " + str(archivo_de_salida) + ".txt"
-                print(archivo_creado)
-    else:
-        # si el archivo no existe crea un archivo nuevo con la extension .txt
-        mensaje_error = "el archivo " + str(archivo_de_salida) + " no existe\nse creara un archivo '.txt' con dicho nombre"
-        print(mensaje_error)
-        with open(archivo_de_salida + '.txt', 'w') as archivo:
-            archivo_creado = "se ha creado el archivo " + str(archivo_de_salida) + ".txt"
-            print(archivo_creado)
+            # lanzar un mensaje de error en caso de que no lo tenga
+            raise ValueError("El archivo está vacío.")
+
+def verificar_entrada(archivo_de_entrada):
+    partes_del_archivo = archivo_de_entrada.split('.')
+    nombre_del_archivo = partes_del_archivo[0]
+    extension_del_archivo = '.' + partes_del_archivo[1]
+    archivo_encontrado = buscar_archivo(nombre_del_archivo)
+    verificar_formato(archivo_encontrado, extension_del_archivo)
+
+def verificar_salida(archivo_de_salida):
+    partes_del_archivo = archivo_de_salida.split('.')
+    nombre_del_archivo = partes_del_archivo[0]
+    extension_del_archivo = '.' + partes_del_archivo[1]
+    archivo_encontrado = buscar_archivo(nombre_del_archivo)
+    verificar_formato(archivo_encontrado, extension_del_archivo)
 
 def algoritmo_FCFS(archivo_de_entrada):
     '''
@@ -134,36 +135,39 @@ def algoritmo_FCFS(archivo_de_entrada):
     '''
     procesos_FCFS = []
     with open(archivo_de_entrada, 'r') as archivo:
-        # saltar la primera linea
+        # saltar la primera proceso
         for _ in range(1):
             archivo.readline()
-        # leer todas las lineas que esten desde la linea 2 hasta la linea 6
+        # leer todas las lineas que esten desde la proceso 2 hasta la proceso 6
         for _ in range(5):
-            linea = archivo.readline().strip()
-            partes = linea.split(':')
-            procesos_FCFS.append((str(partes[0]), int(partes[1]), int(partes[2])))  
-    # marcar el tiempo de retorno inicial para que el bucle funcione correctamente
+            proceso = archivo.readline().strip()
+            partes_del_proceso = proceso.split(':')
+            if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
+                procesos_FCFS.append((str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2])))
+            else:
+                raise ValueError("Error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
+    # marca el tiempo de retorno inicial para que el bucle funcione correctamente
     tiempo_de_retorno = procesos_FCFS[0][1]
     total_del_tiempo_de_espera = 0
     total_del_tiempo_de_retorno = 0
-    # leer el numero de procesos
+    # lee el numero de procesos
     numero_de_procesos = len(procesos_FCFS) 
-    # ordenar los procesos por su llegada
+    # ordena los procesos por su llegada
     procesos_FCFS = sorted(procesos_FCFS, key=lambda x: x[1])  
     for i in range(0, numero_de_procesos):
-        # calcular el tiempo de espera
+        # calcula el tiempo de espera
         tiempo_de_llegada = procesos_FCFS[i][1]
         tiempo_de_respuesta = tiempo_de_retorno - tiempo_de_llegada
         tiempo_de_espera = float(tiempo_de_llegada + tiempo_de_respuesta)
-        # calcular el tiempo de retorno
+        # calcula el tiempo de retorno
         tiempo_de_respuesta = procesos_FCFS[i][2]
         tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_respuesta)
-        # obtener el promedio del tiempo de espera y del tiempo de retorno
+        # obtiene el promedio del tiempo de espera y del tiempo de retorno
         total_del_tiempo_de_espera += tiempo_de_espera
         total_del_tiempo_de_retorno += tiempo_de_retorno
     promedio_del_tiempo_de_espera = total_del_tiempo_de_espera / numero_de_procesos
     promedio_del_tiempo_de_retorno = total_del_tiempo_de_retorno / numero_de_procesos
-    # crear un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
+    # crea un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
     resultados_FCFS = "GRUPO 1 (ALGORITMO FCFS)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + " segundos\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno) + " segundos"
     return resultados_FCFS
 
@@ -173,14 +177,17 @@ def algoritmo_SJF(archivo_de_entrada):
     '''
     procesos_SJF = []
     with open(archivo_de_entrada, 'r') as archivo:
-        # salta la septima linea
+        # salta la septima proceso
         for _ in range(7):
             archivo.readline()
-        # lee todas las lineas que esten desde la linea 8 hasta la linea 12
+        # lee todas las lineas que esten desde la proceso 8 hasta la proceso 12
         for _ in range(5):
-            linea = archivo.readline().strip()
-            partes = linea.split(':')
-            procesos_SJF.append((str(partes[0]), int(partes[1]), int(partes[2])))  
+            proceso = archivo.readline().strip()
+            partes_del_proceso = proceso.split(':')
+            if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
+                procesos_SJF.append((str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2])))
+            else:
+                raise ValueError("Error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
     tiempo_de_retorno = 0
     total_del_tiempo_de_espera = 0
@@ -212,14 +219,17 @@ def algoritmo_SRTF(archivo_de_entrada):
     '''
     procesos_SRTF = []
     with open(archivo_de_entrada, 'r') as archivo:
-        # salta la decimo tercera linea
+        # salta la decimo tercera proceso
         for _ in range(13):
             archivo.readline()
-        # lee todas las lineas que esten desde la linea 14 hasta la linea 18
+        # lee todas las lineas que esten desde la proceso 14 hasta la proceso 18
         for _ in range(5):
-            linea = archivo.readline().strip()
-            partes = linea.split(':')
-            procesos_SRTF.append((str(partes[0]), int(partes[1]), int(partes[2])))  
+            proceso = archivo.readline().strip()
+            partes_del_proceso = proceso.split(':')
+            if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
+                procesos_SRTF.append((str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2])))
+            else:
+                raise ValueError("Error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
     tiempo_de_respuesta = 0
     total_del_tiempo_de_espera = 0
@@ -254,41 +264,54 @@ def algoritmo_ROUND_ROBIN(archivo_de_entrada):
     realiza el algoritmo ROUND ROBIN para el GRUPO 4
     '''
     procesos_ROUND_ROBIN = []
+    # lista que define una cola de procesos en ejecucion
+    cola_de_procesos = []
+    # lista que define el valor quantico (quantum)
+    quantum = []
     with open(archivo_de_entrada, 'r') as archivo:
-        # salta la decimo novena linea
+        # salta la decimo novena proceso
         for _ in range(19):
             archivo.readline()
-        # lee todas las lineas que esten desde la linea 20 hasta la linea 24
+        # lee la linea 20 
+        for _ in range(1):
+            # obtiene los datos del valor cuantico o quantum
+            linea_del_valor_cuantico = archivo.readline().strip()
+            # separa y lista los valores de la linea
+            valor_cuantico = linea_del_valor_cuantico.split(' = ')
+            # obtiene el valor cuantico o cuantum y lo introduce en la lista quantum
+            quantum.append(int(valor_cuantico[1]))
+        # lee todas las lineas que esten desde la proceso 21 hasta la proceso 25
         for _ in range(5):
-            linea = archivo.readline().strip()
-            partes = linea.split(':')
-            procesos_ROUND_ROBIN.append([str(partes[0]), int(partes[1]), int(partes[2]), 0])  
-    # define el valor quantico (quantum)
-    quantum = 3
+            proceso = archivo.readline().strip()
+            partes_del_proceso = proceso.split(':')
+            #*se remplaza la tupla por una lista para añadir una unidad de tiempo restante en la cuarta posicion
+            if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
+                procesos_ROUND_ROBIN.append([str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2]), 0])
+            else:
+                raise ValueError("error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
     tiempo_de_respuesta = 0
     total_del_tiempo_de_espera = 0
     total_del_tiempo_de_retorno = 0
     # lee el numero de procesos
     numero_de_procesos = len(procesos_ROUND_ROBIN)
-    cola_procesos = []
-    while procesos_ROUND_ROBIN or cola_procesos:
+    while procesos_ROUND_ROBIN or cola_de_procesos:
         # agregaa procesos que han llegado al tiempo actual a la cola de procesos
         while procesos_ROUND_ROBIN and procesos_ROUND_ROBIN[0][1] <= tiempo_de_respuesta:
-            cola_procesos.append(procesos_ROUND_ROBIN.pop(0))
-        if cola_procesos:
-            tiempo_de_llegada = cola_procesos.pop(0)
+            cola_de_procesos.append(procesos_ROUND_ROBIN.pop(0))
+        if cola_de_procesos:
+            tiempo_de_llegada = cola_de_procesos.pop(0)
             # calcular el tiempo de espera
             tiempo_espera = tiempo_de_respuesta - tiempo_de_llegada[1] - tiempo_de_llegada[3]
-            tiempo_ejecucion = min(quantum, tiempo_de_llegada[2])
+            tiempo_ejecucion = min(quantum[0], tiempo_de_llegada[2])
             tiempo_de_respuesta += tiempo_ejecucion
             tiempo_de_llegada[2] -= tiempo_ejecucion
             tiempo_de_llegada[3] += tiempo_ejecucion
             if tiempo_de_llegada[2] > 0:
-                # si el proceso aún no ha terminado, se vuelve a añadir a la cola
-                cola_procesos.append(tiempo_de_llegada)
+                # si el proceso aún no ha terminado se vuelve a añadir a la cola
+                cola_de_procesos.append(tiempo_de_llegada)
             else:
-                # si el proceso ha terminado se realiza el calculo del tiempo de retorno
+                # calcular del tiempo de retorno
                 tiempo_de_retorno = tiempo_de_respuesta - tiempo_de_llegada[1]
                 # obtener el promedio del tiempo de espera y del tiempo de retorno
                 total_del_tiempo_de_espera += tiempo_espera
@@ -301,10 +324,32 @@ def algoritmo_ROUND_ROBIN(archivo_de_entrada):
     resultados_ROUND_ROBIN = "GRUPO 4 (ALGORITMO ROUND ROBIN)\npromedio del tiempo de espera: " + str(promedio_del_tiempo_de_espera) + " segundos\npromedio del tiempo de retorno: " + str(promedio_del_tiempo_de_retorno) + " segundos"
     return resultados_ROUND_ROBIN
 
+def verificar_contenido_de_salida(archivo_de_salida):
+    '''
+    verifica si el archivo de salida tiene contenido o no
+    '''
+    # verifica si el archivo ya tiene resultados escritos
+    with open(archivo_de_salida, 'r') as file:
+        resultados_existentes = file.read().strip()
+    # escribe los resultados acorde a los procesos del archivo de entrada
+    if resultados_existentes:
+        # emite un mensaje diciendo que los datos han sido actualizados
+        mensaje_de_importacion = "\nlos resultados han sido actualizados con exito"
+    else:
+        mensaje_de_importacion = "\nlos resultados han sido importados con exito"
+    return mensaje_de_importacion
+
 def escribir_resultados(resultados_FCFS, resultados_SJF, resultados_SRTF, resultados_ROUND_ROBIN, archivo_de_salida):
     '''
     escribe los resultados en el archivo de salida
     '''
+    # verifica si el archivo ya tiene resultados escritos
+    with open(archivo_de_salida, 'r') as file:
+        resultados_existentes = file.read().strip()
+    # escribe los resultados acorde a los procesos del archivo de entrada
+    if resultados_existentes:
+        # emite un mensaje diciendo que los datos han sido actualizados
+        print("los datos han sido actualizados con exito")
     with open(archivo_de_salida, 'w', encoding='utf8') as archivo:
         archivo.write(resultados_FCFS + '\n')
         archivo.write(resultados_SJF + '\n')
@@ -327,37 +372,45 @@ def main():
     pausar_programa()
     # borra el terminal
     borrar_consola()
-    # selecciona el archivo de entrada
-    archivo_de_entrada = "procesos.txt"
-    # selecciona el archivo de salida
-    archivo_de_salida = "salida.txt"
-    # verifica si existen los archivos y si su extension es valida
-    verificar_archivos(archivo_de_entrada, archivo_de_salida)
-    pausar_programa()
-    # borra el terminal
-    borrar_consola()
-    # selecciona el archivo de entrada
-    resultados_FCFS = algoritmo_FCFS(archivo_de_entrada)
-    resultados_SJF = algoritmo_SJF(archivo_de_entrada)
-    resultados_SRTF = algoritmo_SRTF(archivo_de_entrada)
-    resultados_ROUND_ROBIN = algoritmo_ROUND_ROBIN(archivo_de_entrada)
-    escribir_resultados(resultados_FCFS, resultados_SJF, resultados_SRTF, resultados_ROUND_ROBIN, archivo_de_salida)
-    print(resultados_FCFS)
-    print(resultados_SJF)
-    print(resultados_SRTF)
-    print(resultados_ROUND_ROBIN)
-    mensaje_de_importacion = "\nlos resultados han sido importados con exito"
-    # muestra los resultados y emite un mensaje que indica que los resultados fueron importados en el archivo de salida
-    print(mensaje_de_importacion)
-    # pausa el programa
-    pausar_programa()
-    # borra el terminal
-    borrar_consola()
+    try:
+        # selecciona el archivo de entrada
+        archivo_de_entrada = "procesos.txt"
+        # selecciona el archivo de salida
+        archivo_de_salida = "salida.txt"
+        # verifica si existen el archivo de entrada y si su extension es valida
+        verificar_entrada(archivo_de_entrada)
+        # pausa el programa
+        pausar_programa()
+        # verifica si existen el archivo de salida y si su extension es valida
+        verificar_salida(archivo_de_salida)
+        # pausa el programa
+        pausar_programa()
+        # borra el terminal
+        borrar_consola()
+        # genera los resultados de cada proceso
+        resultados_FCFS = algoritmo_FCFS(archivo_de_entrada)
+        resultados_SJF = algoritmo_SJF(archivo_de_entrada)
+        resultados_SRTF = algoritmo_SRTF(archivo_de_entrada)
+        resultados_ROUND_ROBIN = algoritmo_ROUND_ROBIN(archivo_de_entrada)
+        # importa los resultados en el archivo de salida
+        escribir_resultados(resultados_FCFS, resultados_SJF, resultados_SRTF, resultados_ROUND_ROBIN, archivo_de_salida)
+        # muestra los resultados por consola y emite un mensaje indicando que los resultados fueron importados en el archivo de salida
+        print(resultados_FCFS)
+        print(resultados_SJF)
+        print(resultados_SRTF)
+        print(resultados_ROUND_ROBIN)
+        mensaje_de_importacion = verificar_contenido_de_salida(archivo_de_salida)
+        print(mensaje_de_importacion)
+        # pausa el programa
+        pausar_programa()
+        # borra el terminal
+        borrar_consola()
+    except (FileNotFoundError, ValueError) as error:
+        print(error)
+        # pausa el programa
+        pausar_programa()
+        # borra el terminal
+        borrar_consola()
 
 if __name__ == "__main__":
     main()
-
-# verificar si el archivo de entrada y el de salida tienen contenido
-# si el archivo de entrada no tiene contenido mostrar un mensaje indicando que introduzca el contenido
-# si el archivo de salida tiene contenido sobreescribir dicho contenido
-# verificar si el contenido del archivo de entrada (datos introducidos) son correctos (estan escritos de forma correcta)

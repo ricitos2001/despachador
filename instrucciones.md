@@ -8,23 +8,11 @@ ejemplo: python3.12.exe "e:/programacion web/asignaturas/sistemas informaticos/t
 3. el programa verifica si las librerias necesarias estan instaladas y en el caso contrario mostrara un mensaje de error indicando que librerias no esta instaladas y debes instalar
 4. el programa muestra su portada
 5. presionamos intro para iniciar el programa
-6. el programa obtiene una serie de dato relaccionados con una serie de cuatro grupos con cinco procesos que hay en el archivo de entrada "procesos.txt"
+6. el programa comprueba si los archivos de entrada y de salida son correctos y si el formato de ambos arhivos es valido o no. En el caso contrario lanzara un mensaje de error y el programa finalizara
+7. el programa obtiene una serie de datos relaccionados con una serie de cuatro grupos con cinco procesos que hay en el archivo de entrada "procesos.txt". En el caso de que no haya datos o el formato de entrada de los porcesos no cumple con el mostrado en el siguiente ejemplo: (P1:0:2) lanzara un mensaje de error y el programa finalizara
 8. cada grupo de procesos pasara por un algoritmo diferente
-9. una vez finalizado el proceso el programa mostrara un mensaje diciendo que los datos han sido importados en un archivo de salida llamado "salida.txt" y dichos datos estaran mostrados en una tabla
-10. el resultado se mostrara en formato de tabla:
-╔═════════════════════╦══════════════╦══════════════╦══════════════╦══════════════╗
-║                     ║     FCFS     ║     SJF      ║     SRTF     ║ ROUND ROBIN  ║
-╠═════════════════════╬══════════════╬══════════════╬══════════════╬══════════════╣
-║ tiempo de espera    ║              ║              ║              ║              ║
-╠═════════════════════╬══════════════╬══════════════╬══════════════╬══════════════╣
-║ tiempo de retorno   ║              ║              ║              ║              ║
-╠═════════════════════╬══════════════╬══════════════╬══════════════╬══════════════╣
-║ tiempo de respuesta ║              ║              ║              ║              ║
-╠═════════════════════╬══════════════╬══════════════╬══════════════╬══════════════╣
-║ uso de la CPU       ║              ║              ║              ║              ║
-╠═════════════════════╬══════════════╬══════════════╬══════════════╬══════════════╣
-║ productividad       ║              ║              ║              ║              ║
-╚═════════════════════╩══════════════╩══════════════╩══════════════╩══════════════╝
+9. una vez finalizado el proceso el programa mostrara un mensaje diciendo que los datos han sido importados en un archivo de salida llamado "salida.txt" y dichos datos estaran mostrados en una tabla y en el caso de que ya tenga datos escritos los sobrescribe acorde a los procesos introducidoss 
+
 ## LIBRERIAS A UTILIZAR
 1. libreria os
 2. libreria sys
@@ -35,4 +23,5 @@ ejemplo: python3.12.exe "e:/programacion web/asignaturas/sistemas informaticos/t
 1. el programa posee un script para pausar la consola y otro script para limpiar el terminal. Ambos scripts se ejecuta por cada paso del funcionamiento del programa
 2. el programa utiliza un archivo de entrada de datos llamado "procesos.txt" y uno de salida llamado "salida.txt"
 3. el programa utilizara cuatro grupos de procesos y cada uno servira para un algoritmo en especifico
-5. el resultado varia en funcion de las caracteristicas de los procesos
+4. el resultado varia en funcion de las caracteristicas de los procesos
+5. el programa cuenta con una serie de medidas para se cierre en caso de que haya un error en nombre, formato o contenido del archivo de entrada
