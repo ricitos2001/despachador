@@ -148,7 +148,7 @@ def algoritmo_FCFS(archivo_de_entrada):
             else:
                 raise ValueError("Error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
-    tiempo_de_retorno = procesos_FCFS[0][1]
+    tiempo_de_retorno = 0
     total_del_tiempo_de_espera = 0
     total_del_tiempo_de_retorno = 0
     # lee el numero de procesos
@@ -158,11 +158,10 @@ def algoritmo_FCFS(archivo_de_entrada):
     for i in range(0, numero_de_procesos):
         # calcula el tiempo de espera
         tiempo_de_llegada = procesos_FCFS[i][1]
-        tiempo_de_respuesta = tiempo_de_retorno - tiempo_de_llegada
-        tiempo_de_espera = float(tiempo_de_llegada + tiempo_de_respuesta)
+        tiempo_de_espera = max(0, float(tiempo_de_retorno - tiempo_de_llegada))
         # calcula el tiempo de retorno
-        tiempo_de_respuesta = procesos_FCFS[i][2]
-        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_respuesta)
+        tiempo_ = procesos_FCFS[i][2]
+        tiempo_de_retorno = float(tiempo_de_espera + tiempo_)
         # obtiene el promedio del tiempo de espera y del tiempo de retorno
         total_del_tiempo_de_espera += tiempo_de_espera
         total_del_tiempo_de_retorno += tiempo_de_retorno
@@ -201,11 +200,10 @@ def algoritmo_SJF(archivo_de_entrada):
     for i in range(0, numero_de_procesos):
         # calcula el tiempo de espera
         tiempo_de_llegada = procesos_SJF[i][1]
-        tiempo_de_respuesta = tiempo_de_retorno - tiempo_de_llegada
-        tiempo_de_espera = float(tiempo_de_llegada + tiempo_de_respuesta)
+        tiempo_de_espera = max(0, float(tiempo_de_retorno - tiempo_de_llegada))
         # calcula el tiempo de retorno
-        tiempo_de_respuesta = procesos_SJF[i][2]
-        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_respuesta)
+        tiempo_de_ejecucion = procesos_SJF[i][2]
+        tiempo_de_retorno = float(tiempo_de_espera + tiempo_de_ejecucion)
         # obtiene el promedio del tiempo de espera y del tiempo de retorno
         total_del_tiempo_de_espera += tiempo_de_espera
         total_del_tiempo_de_retorno += tiempo_de_retorno
@@ -221,7 +219,7 @@ def algoritmo_SRTF(archivo_de_entrada):
     '''
     procesos_SRTF = []
     with open(archivo_de_entrada, 'r') as archivo:
-        # salta la decimo tercera proceso
+        # salta la decimotercera proceso
         for _ in range(13):
             archivo.readline()
         # lee todas las lineas que esten desde la proceso 14 hasta la proceso 18
@@ -233,29 +231,40 @@ def algoritmo_SRTF(archivo_de_entrada):
                 procesos_SRTF.append((str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2])))
             else:
                 raise ValueError("Error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
+    # marca el tiempo actual de un proceso
+    tiempo_actual = 0
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
-    tiempo_de_respuesta = 0
+    tiempo_de_retorno = 0
     total_del_tiempo_de_espera = 0
     total_del_tiempo_de_retorno = 0
-    procesos_en_ejecucion = []
     # lee el numero de procesos
-    numero_de_procesos = len(procesos_SRTF)
-    while procesos_SRTF or procesos_en_ejecucion:
-        # agrega los procesos que han llegado al tiempo actual
-        while procesos_SRTF and procesos_SRTF[0][1] <= tiempo_de_respuesta:
-            procesos_en_ejecucion.append(procesos_SRTF.pop(0))
-            procesos_en_ejecucion.sort(key=lambda x: x[2])  # Ordenar por el tiempo restante más corto
-        if procesos_en_ejecucion:
-            tiempo_de_llegada = procesos_en_ejecucion.pop(0)
+    numero_de_procesos = len(procesos_SRTF) 
+    # ordena los procesos por el tiempo de ejecucion a excepcion de aquel cuya llegada es 0
+    procesos_SRTF = sorted(procesos_SRTF, key=lambda x: (x[2], x[1]))
+    while procesos_SRTF:
+        # selecciona el proceso con el menor tiempo de ejecucion restante que ha llegado
+        # selecciona el proceso con el menor tiempo de ejecucion restante que ha llegado
+        proceso_seleccionado = None
+        for p in procesos_SRTF:
+            if p[1] <= tiempo_actual:
+                if proceso_seleccionado is None or p[2] < proceso_seleccionado[2]:
+                    proceso_seleccionado = p
+        proceso = proceso_seleccionado
+        if proceso is None:
+            # si no hay procesos que hayan llegado, avanza el tiempo al siguiente proceso que llegará
+            tiempo_actual = min(procesos_SRTF, key=lambda x: x[1])[1]
+        else:
+            procesos_SRTF.remove(proceso)
+            tiempo_de_llegada = proceso[1]
+            tiempo_de_ejecucion = proceso[2]
             # calcula el tiempo de espera
-            tiempo_espera = tiempo_de_respuesta - tiempo_de_llegada[1]
-            tiempo_de_respuesta += tiempo_de_llegada[2]
+            tiempo_de_espera = tiempo_actual - tiempo_de_llegada
             # calcula el tiempo de retorno
-            tiempo_retorno = tiempo_de_respuesta - tiempo_de_llegada[1]
-            total_del_tiempo_de_espera += tiempo_espera
-            total_del_tiempo_de_retorno += tiempo_retorno
-    # ordenar los procesos por su llegada y por su tiempo de ejecucion
-    procesos_SRTF = sorted(procesos_SRTF, key=lambda x: x[1])
+            tiempo_de_retorno = tiempo_de_espera + tiempo_de_ejecucion
+            
+            total_del_tiempo_de_espera += tiempo_de_espera
+            total_del_tiempo_de_retorno += tiempo_de_retorno
+            tiempo_actual += tiempo_de_ejecucion
     promedio_del_tiempo_de_espera = total_del_tiempo_de_espera / numero_de_procesos
     promedio_del_tiempo_de_retorno = total_del_tiempo_de_retorno / numero_de_procesos
     # crea un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
@@ -294,34 +303,34 @@ def algoritmo_ROUND_ROBIN(archivo_de_entrada):
             else:
                 raise ValueError("error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
     # marca el tiempo de retorno inicial para que el bucle funcione correctamente
-    tiempo_de_respuesta = 0
+    tiempo_ = 0
     total_del_tiempo_de_espera = 0
     total_del_tiempo_de_retorno = 0
     # lee el numero de procesos
     numero_de_procesos = len(procesos_ROUND_ROBIN)
     while procesos_ROUND_ROBIN or cola_de_procesos:
         # agregaa procesos que han llegado al tiempo actual a la cola de procesos
-        while procesos_ROUND_ROBIN and procesos_ROUND_ROBIN[0][1] <= tiempo_de_respuesta:
+        while procesos_ROUND_ROBIN and procesos_ROUND_ROBIN[0][1] <= tiempo_:
             cola_de_procesos.append(procesos_ROUND_ROBIN.pop(0))
         if cola_de_procesos:
             tiempo_de_llegada = cola_de_procesos.pop(0)
             # calcular el tiempo de espera
-            tiempo_espera = tiempo_de_respuesta - tiempo_de_llegada[1] - tiempo_de_llegada[3]
-            tiempo_ejecucion = min(quantum[0], tiempo_de_llegada[2])
-            tiempo_de_respuesta += tiempo_ejecucion
-            tiempo_de_llegada[2] -= tiempo_ejecucion
-            tiempo_de_llegada[3] += tiempo_ejecucion
+            tiempo_de_espera = tiempo_ - tiempo_de_llegada[1] - tiempo_de_llegada[3]
+            tiempo_de_ejecucion = min(quantum[0], tiempo_de_llegada[2])
+            tiempo_ += tiempo_de_ejecucion
+            tiempo_de_llegada[2] -= tiempo_de_ejecucion
+            tiempo_de_llegada[3] += tiempo_de_ejecucion
             if tiempo_de_llegada[2] > 0:
                 # si el proceso aún no ha terminado se vuelve a añadir a la cola
                 cola_de_procesos.append(tiempo_de_llegada)
             else:
                 # calcular del tiempo de retorno
-                tiempo_de_retorno = tiempo_de_respuesta - tiempo_de_llegada[1]
+                tiempo_de_retorno = tiempo_ - tiempo_de_llegada[1]
                 # obtener el promedio del tiempo de espera y del tiempo de retorno
-                total_del_tiempo_de_espera += tiempo_espera
+                total_del_tiempo_de_espera += tiempo_de_espera
                 total_del_tiempo_de_retorno += tiempo_de_retorno
         else:
-            tiempo_de_respuesta += 1  # incrementa el tiempo si no hay procesos listos
+            tiempo_ += 1  # incrementa el tiempo si no hay procesos listos
     promedio_del_tiempo_de_espera = total_del_tiempo_de_espera / numero_de_procesos
     promedio_del_tiempo_de_retorno = total_del_tiempo_de_retorno / numero_de_procesos
     # crea un mensaje que muestre el promedio del tiempo de espera y del tiempo de retorno
