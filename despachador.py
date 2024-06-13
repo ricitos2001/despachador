@@ -142,6 +142,7 @@ def algoritmo_FCFS(archivo_de_entrada):
         for _ in range(5):
             proceso = archivo.readline().strip()
             partes_del_proceso = proceso.split(':')
+            # comprueba si el formato es correcto y en caso contrario se lanza un mensaje de error
             if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
                 procesos_FCFS.append((str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2])))
             else:
@@ -184,6 +185,7 @@ def algoritmo_SJF(archivo_de_entrada):
         for _ in range(5):
             proceso = archivo.readline().strip()
             partes_del_proceso = proceso.split(':')
+            # comprueba si el formato es correcto y en caso contrario se lanza un mensaje de error
             if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
                 procesos_SJF.append((str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2])))
             else:
@@ -226,6 +228,7 @@ def algoritmo_SRTF(archivo_de_entrada):
         for _ in range(5):
             proceso = archivo.readline().strip()
             partes_del_proceso = proceso.split(':')
+            # comprueba si el formato es correcto y en caso contrario se lanza un mensaje de error
             if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
                 procesos_SRTF.append((str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2])))
             else:
@@ -284,8 +287,9 @@ def algoritmo_ROUND_ROBIN(archivo_de_entrada):
         for _ in range(5):
             proceso = archivo.readline().strip()
             partes_del_proceso = proceso.split(':')
-            #*se remplaza la tupla por una lista para añadir una unidad de tiempo restante en la cuarta posicion
+            # comprueba si el formato es correcto y en caso contrario se lanza un mensaje de error
             if len(partes_del_proceso) == 3 and partes_del_proceso[0].startswith('P') and partes_del_proceso[0][1:].isdigit() and partes_del_proceso[1].isdigit() and partes_del_proceso[2].isdigit():
+                #*en este caso se remplaza la tupla por una lista para añadir una unidad de tiempo restante en la cuarta posicion
                 procesos_ROUND_ROBIN.append([str(partes_del_proceso[0]), int(partes_del_proceso[1]), int(partes_del_proceso[2]), 0])
             else:
                 raise ValueError("error de formato en el archivo de " + str(archivo_de_entrada) + ": " + str(proceso.strip()))
