@@ -5,8 +5,8 @@ GRUPO 2 (ALGORITMO SJF)
 promedio del tiempo de espera: 4.0 segundos
 promedio del tiempo de retorno: 13.8 segundos
 GRUPO 3 (ALGORITMO SRTF)
-promedio del tiempo de espera: 4.0 segundos
-promedio del tiempo de retorno: 10.0 segundos
+promedio del tiempo de espera: 2.8 segundos
+promedio del tiempo de retorno: 8.2 segundos
 GRUPO 4 (ALGORITMO ROUND ROBIN)
 promedio del tiempo de espera: 26.4 segundos
 promedio del tiempo de retorno: 42.0 segundos
